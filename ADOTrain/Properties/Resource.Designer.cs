@@ -68,5 +68,14 @@ namespace ADOTrain.Properties {
                 return ResourceManager.GetString("ConnectionString", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to System.Data.SqlClient.
+        /// </summary>
+        internal static string SqlProviderInvariantName {
+            get {
+                return ResourceManager.GetString("SqlProviderInvariantName", resourceCulture);
+            }
+        }
     }
 }

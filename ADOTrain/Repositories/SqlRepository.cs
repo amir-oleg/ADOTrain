@@ -6,11 +6,12 @@ using System.Linq;
 using ADOTrain.Dtos;
 using ADOTrain.Entities;
 
-namespace ADOTrain
+namespace ADOTrain.Repositories
 {
-    public class Repository
+    public class SqlRepository:Repository
     {
         private static readonly string ConnectionString = Properties.Resource.ConnectionString;
+        private static readonly string ProviderInvariantName = Properties.Resource.SqlProviderInvariantName;
         private const string CreateTableStudents = "CREATE TABLE Students (Name varchar(255))";
         private const string CreateTableLecture = "CREATE TABLE Lecture (Date DATE,Topic varchar(255))";
         private const string CreateTableAttendance = "CREATE TABLE Attendance (LectureDate DATE, StudentName varchar(255), Mark INT)";
@@ -20,47 +21,17 @@ namespace ADOTrain
         private const string InsertIntoStudents = "INSERT INTO Students(Name) Values(@Name)";
         private const string ProcedureMarkAttendance = "MarkAttendance";
         private const string SelectAllFromLecture = "SELECT * FROM Lecture";
-        private const string SelectAllFromAttendance = "SELECT * FROM Attendeance";
+        private const string SelectAllFromAttendance = "SELECT * FROM Attendance";
         private const string SelectAllFromStudents = "SELECT * FROM Students";
 
-
-        private static T GetConnection<T>(Func<SqlConnection, T> getData)
+        protected override T GetConnection<T>(Func<IDbConnection, T> getData, string providerInvariantName = "", string connectionString = "")
         {
-            try
-            {
-                using (var connection = new SqlConnection(ConnectionString))
-                {
-                    connection.Open();
-                    return getData(connection);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-
-            return default;
+            providerInvariantName = ProviderInvariantName;
+            connectionString = ConnectionString;
+            return base.GetConnection(getData, providerInvariantName, connectionString);
         }
 
-        private static T CreateCommand<T>(IDbConnection connection, string commandText, int commandTimeout = -1,
-            CommandType commandType = CommandType.Text, IDbTransaction transaction = null) where T : IDbCommand, new()
-        {
-            var command = new T {Connection = connection, CommandText = commandText, CommandType = commandType};
-
-            if (commandTimeout > 0)
-            {
-                command.CommandTimeout = commandTimeout;
-            }
-
-            if (transaction != null)
-            {
-                command.Transaction = transaction;
-            }
-
-            return command;
-        }
-
-        private static void CreateParameter(SqlCommand command, string parameterName, SqlDbType sqlDbType = default,
+        private static void CreateSqlParameter(SqlCommand command, string parameterName, SqlDbType sqlDbType = default,
             int size = -1, ParameterDirection direction = default, object value = null)
         {
             var parameter = command.CreateParameter();
@@ -128,8 +99,8 @@ namespace ADOTrain
             {
                 using (var command = CreateCommand<SqlCommand>(connection, InsertIntoLecture))
                 {
-                    CreateParameter(command, "@Date", SqlDbType.Date, direction: ParameterDirection.Input, value: date);
-                    CreateParameter(command, "@Topic", SqlDbType.VarChar, 255, ParameterDirection.Input, topic);
+                    CreateSqlParameter(command, "@Date", SqlDbType.Date, direction: ParameterDirection.Input, value: date);
+                    CreateSqlParameter(command, "@Topic", SqlDbType.VarChar, 255, ParameterDirection.Input, topic);
                     return command.ExecuteNonQuery();
                 }
             });
@@ -141,7 +112,7 @@ namespace ADOTrain
             {
                 using (var command = CreateCommand<SqlCommand>(connection, InsertIntoStudents))
                 {
-                    CreateParameter(command, "@Name", SqlDbType.VarChar, 255, ParameterDirection.Input, name);
+                    CreateSqlParameter(command, "@Name", SqlDbType.VarChar, 255, ParameterDirection.Input, name);
                     return command.ExecuteNonQuery();
                 }
             });
@@ -153,9 +124,9 @@ namespace ADOTrain
             {
                 using (var command = CreateCommand<SqlCommand>(connection, ProcedureMarkAttendance, commandType:CommandType.StoredProcedure))
                 {
-                    CreateParameter(command, "@LectureDate", SqlDbType.Date, direction: ParameterDirection.Input, value: date);
-                    CreateParameter(command, "@StudentName", SqlDbType.VarChar, 255, ParameterDirection.Input, name);
-                    CreateParameter(command, "@Mark", SqlDbType.Int, direction: ParameterDirection.Input, value: mark);
+                    CreateSqlParameter(command, "@LectureDate", SqlDbType.Date, direction: ParameterDirection.Input, value: date);
+                    CreateSqlParameter(command, "@StudentName", SqlDbType.VarChar, 255, ParameterDirection.Input, name);
+                    CreateSqlParameter(command, "@Mark", SqlDbType.Int, direction: ParameterDirection.Input, value: mark);
                     return command.ExecuteNonQuery();
                 }
             });
@@ -231,7 +202,6 @@ namespace ADOTrain
 
                 return (result,students);
             });
-
         }
     }
 }

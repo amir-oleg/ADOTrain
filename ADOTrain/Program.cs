@@ -1,4 +1,5 @@
 ﻿using System;
+using ADOTrain.Repositories;
 
 namespace ADOTrain
 {
@@ -11,7 +12,7 @@ namespace ADOTrain
                 return;
             }
                 
-            var repo = new Repository();
+            var repo = new SqlRepository();
 
             if (args[0] == "-init" && args.Length == 1)
             {

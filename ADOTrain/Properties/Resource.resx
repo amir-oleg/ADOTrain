@@ -120,4 +120,7 @@
   <data name="ConnectionString" xml:space="preserve">
     <value>Data Source=(LocalDB)\MSSQLLocalDB;Initial Catalog=Test;Integrated Security=True</value>
   </data>
+  <data name="SqlProviderInvariantName" xml:space="preserve">
+    <value>System.Data.SqlClient</value>
+  </data>
 </root>
