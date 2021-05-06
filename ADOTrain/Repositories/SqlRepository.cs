@@ -8,7 +8,7 @@ using ADOTrain.Entities;
 
 namespace ADOTrain.Repositories
 {
-    public class SqlRepository:Repository
+    public class SqlRepository:BaseRepository
     {
         private static readonly string ConnectionString = Properties.Resource.ConnectionString;
         private static readonly string ProviderInvariantName = Properties.Resource.SqlProviderInvariantName;
@@ -24,8 +24,9 @@ namespace ADOTrain.Repositories
         private const string SelectAllFromAttendance = "SELECT * FROM Attendance";
         private const string SelectAllFromStudents = "SELECT * FROM Students";
 
-        protected override T GetConnection<T>(Func<IDbConnection, T> getData, string providerInvariantName = "", string connectionString = "")
+        protected override T GetConnection<T>(Func<IDbConnection, T> getData, string providerInvariantName = default, string connectionString = default)
         {
+            
             providerInvariantName = ProviderInvariantName;
             connectionString = ConnectionString;
             return base.GetConnection(getData, providerInvariantName, connectionString);
@@ -56,26 +57,22 @@ namespace ADOTrain.Repositories
                 {
                     try
                     {
-                        using (var command =
-                            CreateCommand<SqlCommand>(connection, CreateTableStudents, transaction: transaction))
+                        using (var command = CreateCommand<SqlCommand>(connection, CreateTableStudents, transaction: transaction))
                         {
                             command.ExecuteNonQuery();
                         }
 
-                        using (var command = 
-                            CreateCommand<SqlCommand>(connection, CreateTableLecture, transaction: transaction))
+                        using (var command = CreateCommand<SqlCommand>(connection, CreateTableLecture, transaction: transaction))
                         {
                             command.ExecuteNonQuery();
                         }
 
-                        using (var command = 
-                            CreateCommand<SqlCommand>(connection, CreateTableAttendance, transaction: transaction))
+                        using (var command = CreateCommand<SqlCommand>(connection, CreateTableAttendance, transaction: transaction))
                         {
                             command.ExecuteNonQuery();
                         }
 
-                        using (var command =
-                            CreateCommand<SqlCommand>(connection, CreateProcedureMarkAttendance, transaction: transaction))
+                        using (var command = CreateCommand<SqlCommand>(connection, CreateProcedureMarkAttendance, transaction: transaction))
                         {
                             command.ExecuteNonQuery();
                         }
@@ -150,7 +147,11 @@ namespace ADOTrain.Repositories
                             {
                                 continue;
                             }
-                            lectures.Add(new Lecture {Date = date, Topic = reader[1].ToString()});
+                            lectures.Add(new Lecture
+                            {
+                                Date = date, 
+                                Topic = reader[1].ToString()
+                            });
                         }
 
                         reader.Close();
@@ -167,7 +168,12 @@ namespace ADOTrain.Repositories
                             {
                                 continue;
                             }
-                            attendance.Add(new Attendance {LectureDate = date, StudentName = reader[1].ToString(), Mark = mark});
+                            attendance.Add(new Attendance
+                            {
+                                LectureDate = date, 
+                                StudentName = reader[1].ToString(),
+                                Mark = mark
+                            });
                         }
 
                         reader.Close();

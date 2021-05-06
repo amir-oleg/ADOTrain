@@ -4,9 +4,9 @@ using System.Data.Common;
 
 namespace ADOTrain.Repositories
 {
-    public class Repository
+    public class BaseRepository
     {
-        protected virtual T GetConnection<T>(Func<IDbConnection, T> getData, string providerInvariantName, string connectionString)
+        protected virtual T GetConnection<T>(Func<IDbConnection, T> getData, string providerInvariantName = default, string connectionString = default)
         {
             try
             {
